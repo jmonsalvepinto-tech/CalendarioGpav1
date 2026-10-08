@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tablero Operativo de Mensajeros - Gómez Pineda Abogados & Nodex</title>
+  <meta name="theme-color" content="#10243a">
+  <script>
+    try {
+      if (localStorage.getItem("nodex-theme") === "dark") {
+        document.documentElement.dataset.theme = "dark";
+      }
+    } catch (_) {}
+  </script>
+  <link rel="icon" type="image/png" sizes="512x512" href="img/favicon.png?v=2">
+  <link rel="apple-touch-icon" href="img/favicon.png?v=2">
+  <!-- Estilos de Tailwind CSS para diseño moderno -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans min-h-screen p-4 md:p-6">
+
+  <!-- ======================================================= -->
+  <!-- 1. ENCABEZADO: Título, Navegación de Fecha y Filtros     -->
+  <!-- ======================================================= -->
+  <header class="app-header max-w-7xl mx-auto bg-white border border-slate-200 rounded-2xl p-5 mb-6 shadow-sm">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <!-- Logo Gómez Pineda Abogados en asociación con Nodex -->
+        <div class="brand-mark flex items-center justify-center shrink-0">
+          <img src="img/logo.png" alt="Gómez Pineda Abogados en asociación con Nodex" class="brand-logo brand-logo-light object-contain">
+          <img src="img/logo-dark.png" alt="" aria-hidden="true" class="brand-logo brand-logo-dark object-contain">
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-lg md:text-2xl font-bold text-slate-900 tracking-tight">Agenda de operaciones</h1>
+            <span id="estadoConexion" class="connection-badge" role="status" aria-live="polite">
+              <span class="connection-dot"></span><span id="textoConexion">Verificando conexión</span>
+            </span>
+          </div>
+          <p class="text-xs md:text-sm text-slate-500 mt-0.5">Mensajería y diligencias <span class="brand-divider">·</span> Gómez Pineda × Nodex</p>
+        </div>
+      </div>
+
+      <!-- Navegación de Fecha y Botones de Acción -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Selector interactivo de Fecha -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+          <button onclick="cambiarFecha(-1)" title="Día anterior" class="p-1.5 hover:bg-white rounded-lg text-slate-600 transition shadow-xs text-xs font-semibold px-2">◀</button>
+          <button onclick="irAHoy()" title="Ir al día actual" class="px-2 py-1 text-xs font-bold text-blue-600 hover:bg-white rounded-lg transition">Hoy</button>
+          <input type="date" id="selectorFecha" onchange="seleccionarFecha(this.value)" class="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-2 py-1 text-slate-800 cursor-pointer focus:outline-blue-500 shadow-xs">
+          <button onclick="cambiarFecha(1)" title="Día siguiente" class="p-1.5 hover:bg-white rounded-lg text-slate-600 transition shadow-xs text-xs font-semibold px-2">▶</button>
+        </div>
+
+        <!-- Botón Bandeja de Pendientes Nodex -->
+        <button onclick="abrirBandejaPendientes()"
+          class="relative inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition shadow-sm">
+          <span>Bandeja de pendientes</span>
+          <span id="badge-pendientes-count" class="bg-white text-amber-900 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full shadow-xs">3</span>
+        </button>
+
+        <!-- Botón actualizar desde Nodex -->
+        <button id="boton-actualizar" onclick="cargarDatosDesdeAPI(null, true)"
+          class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition shadow-sm">
+          <svg id="spinner-actualizar" class="hidden w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <span id="texto-actualizar">↻ Sincronizar</span>
+        </button>
+
+        <!-- Botón Nueva Asignación / Bloqueo -->
+        <button onclick="abrirModalNuevo()" class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-sm">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>Nueva Cita / Bloqueo</span>
+        </button>
+
+        <button id="themeToggle" type="button" onclick="alternarTema()" aria-label="Cambiar a tema oscuro" aria-pressed="false" class="theme-toggle inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition shadow-sm">
+          <svg id="themeIconMoon" aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20.2 15.4A8.5 8.5 0 0 1 8.6 3.8 8.5 8.5 0 1 0 20.2 15.4Z"/></svg>
+          <svg id="themeIconSun" aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" hidden><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+          <span id="themeToggleLabel">Modo oscuro</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de Filtros, Buscador y Resumen de Métricas (KPIs) -->
+    <div class="mt-5 pt-4 border-t border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <!-- Filtro por Ciudad / Sede y Buscador -->
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Filtro Ciudad -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sede:</span>
+          <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-medium">
+            <button onclick="filtrarPorCiudad('todos')" id="boton-filtro-todos" class="px-3 py-1.5 rounded-lg bg-white shadow-xs text-slate-900 font-semibold transition">Todos (4)</button>
+            <button onclick="filtrarPorCiudad('bogota')" id="boton-filtro-bogota" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Bogotá (2)</button>
+            <button onclick="filtrarPorCiudad('medellin')" id="boton-filtro-medellin" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Medellín (2)</button>
+          </div>
+        </div>
+
+        <!-- Buscador instantáneo -->
+        <div class="relative w-full sm:w-64">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none text-slate-400 text-xs">🔍</span>
+          <input type="text" id="campoBusqueda" oninput="filtrarPorBusqueda(this.value)"
+            placeholder="Buscar radicado, entidad, trámite..."
+            class="w-full bg-slate-100 border border-slate-200 rounded-xl pl-8 pr-7 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-blue-500 transition">
+          <button id="botonLimpiarBusqueda" onclick="limpiarBusqueda()" class="hidden absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-400 hover:text-slate-600 text-xs font-bold">✕</button>
+        </div>
+
+        <!-- Switch Ver huecos libres -->
+        <label class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 cursor-pointer select-none bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-xl hover:bg-slate-100 transition">
+          <input type="checkbox" id="checkMostrarHuecos" onchange="alternarHuecosDisponibles(this.checked)" checked class="rounded text-blue-600 focus:ring-blue-500">
+          <span>Ver franjas libres</span>
+        </label>
+      </div>
+
+      <!-- Tarjetas de Métricas Rápidas -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+        <div class="bg-blue-50/70 border border-blue-100 px-3 py-1.5 rounded-xl">
+          <span class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Mensajeros</span>
+          <div id="kpi-mensajeros" class="text-base font-bold text-blue-900">— Activos</div>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Citas Asignadas</span>
+          <div id="kpi-citas" class="text-base font-bold text-slate-800">— Citas</div>
+        </div>
+        <div class="bg-emerald-50/70 border border-emerald-100 px-3 py-1.5 rounded-xl">
+          <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Franjas Libres</span>
+          <div id="kpi-libres" class="text-base font-bold text-emerald-800">— Disponibles</div>
+        </div>
+        <div class="bg-amber-50/70 border border-amber-100 px-3 py-1.5 rounded-xl">
+          <span class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Bloqueos Nodex</span>
+          <div id="kpi-bloqueos" class="text-base font-bold text-amber-800">— Preventivos</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timestamp y Alerta de Cruces Detectados -->
+    <div class="mt-3 pt-2.5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2">
+      <div id="contenedorAlertaCruces" class="hidden flex items-center gap-2 text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1 rounded-lg font-semibold">
+        <span>⚠️</span>
+        <span id="textoAlertaCruces">Se detectaron cruces de horario en la programación de hoy.</span>
+      </div>
+      <div class="flex items-center gap-3 ml-auto text-slate-400">
+        <span id="textoFechaLarga" class="font-medium text-slate-600"></span>
+        <span>·</span>
+        <span id="ultima-actualizacion">Conectando con Nodex…</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Banner de error de API (oculto por defecto) -->
+  <div id="banner-error-api" class="hidden max-w-7xl mx-auto mb-4">
+    <div class="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
+      <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+      <span id="texto-error-api" class="flex-1"></span>
+      <button onclick="ocultarMensajeError()" class="text-amber-600 hover:text-amber-800 font-bold text-lg leading-none">✕</button>
+    </div>
+  </div>
+
+  <!-- Banner informativo de estado de la API (cuando está conectada pero vacía o en modo prueba) -->
+  <div id="banner-info-api" class="hidden max-w-7xl mx-auto mb-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-xs text-blue-900 shadow-xs">
+      <div class="flex items-center gap-2.5">
+        <span class="text-base">⚡</span>
+        <span id="texto-info-api" class="font-medium"></span>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="btnAlternarDatosPrueba" onclick="alternarDatosPrueba()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition shadow-xs">
+          Cargar datos de prueba
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- 2. CUADRÍCULA PRINCIPAL: Generada dinámicamente por JS  -->
+  <!-- Los datos vienen de la API de Nodex (config.js)         -->
+  <!-- ======================================================= -->
+  <main class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5" id="contenedorMensajeros">
+      <div class="col-span-4 flex items-center justify-center py-16 text-slate-400">
+        <svg class="w-6 h-6 animate-spin mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        <span class="text-sm font-medium">Preparando agenda…</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- ======================================================= -->
+  <!-- 3. VENTANAS MODALES INTERACTIVAS                         -->
+  <!-- ======================================================= -->
+
+  <!-- Modal A: Detalle de Cita Existente -->
+  <div id="modalDetalleCita" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+          <h3 id="etiquetaRadicado" class="font-bold text-lg text-slate-900">Detalle de Diligencia</h3>
+        </div>
+        <button onclick="cerrarModalDetalle()" class="text-slate-400 hover:text-slate-600 p-1">✕</button>
+      </div>
+      
+      <div class="py-4 space-y-3 text-sm">
+        <div>
+          <span class="text-xs font-semibold text-slate-400 uppercase">Diligencia / Motivo</span>
+          <p id="etiquetaTitulo" class="text-base font-bold text-slate-800 mt-0.5"></p>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase">Mensajero Asignado</span>
+            <p id="etiquetaMensajero" class="font-medium text-slate-800 mt-0.5"></p>
+          </div>
+          <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase">Horario Programado</span>
+            <p id="etiquetaHorario" class="font-medium text-slate-800 mt-0.5 text-blue-600"></p>
+          </div>
+        </div>
+
+        <div>
+          <span class="text-xs font-semibold text-slate-400 uppercase">Municipio y Dirección</span>
+          <p id="etiquetaUbicacion" class="font-medium text-slate-800 mt-0.5"></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase">Entidad / Contacto</span>
+            <p id="etiquetaEntidad" class="font-medium text-slate-800 mt-0.5"></p>
+          </div>
+          <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase">Estado Sincronizado</span>
+            <span id="etiquetaEstado" class="inline-block mt-1 px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-800"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
+        <button onclick="abrirModalReasignacion()" class="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition border border-slate-200">
+          Reasignar Horario / Mensajero
+        </button>
+        <button onclick="cerrarModalDetalle()" class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-xs">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal B: Bloqueo de Franja o Nueva Asignación -->
+  <div id="modalNuevoBloqueo" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 id="tituloModalNuevo" class="font-bold text-base text-slate-900">Nueva Cita o Bloqueo Preventivo</h3>
+        <button onclick="cerrarModalNuevo()" class="text-slate-400 hover:text-slate-600 p-1">✕</button>
+      </div>
+
+      <!-- Alerta dinámica de conflicto de horario -->
+      <div id="alertaConflictoModal" class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium"></div>
+
+      <form id="formularioAsignacion" onsubmit="guardarRegistro(event)" class="py-3 space-y-3.5 text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Registro</label>
+          <select id="campoTipoAccion" onchange="cambiarTipoRegistroUI(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-blue-500 text-sm">
+            <option value="asignacion">📋 Asignar Cita / Diligencia Directa</option>
+            <option value="bloqueo">🔒 Bloqueo Preventivo (Reserva / Diligencia Nodex)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Mensajero Responsable</label>
+          <select id="campoMensajero" onchange="verificarConflictoEnVivo()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:outline-blue-500 text-sm">
+            <option value="Carlos León">Carlos León (Bogotá Norte / Centro)</option>
+            <option value="Fredy Yesid Bernal">Fredy Yesid Bernal (Bogotá Sur / Soacha)</option>
+            <option value="Gonzalo Romero">Gonzalo Romero (Medellín Centro / Poblado)</option>
+            <option value="Eric Quiceno">Eric Quiceno (Medellín Norte / Bello)</option>
+          </select>
+        </div>
+
+        <!-- Toggle: Bloquear Día Completo -->
+        <div id="contenedorDiaCompleto" class="p-2.5 bg-amber-50/80 rounded-xl border border-amber-200 flex items-center gap-2">
+          <input type="checkbox" id="checkDiaCompleto" onchange="alternarCamposDiaCompleto(this.checked)" class="rounded text-amber-600 focus:ring-amber-500 cursor-pointer">
+          <label for="checkDiaCompleto" class="text-xs font-bold text-amber-900 cursor-pointer">
+            🚫 Bloquear Jornada Completa (Incapacidad / Permiso / Contingencia)
+          </label>
+        </div>
+
+        <!-- Campos de Hora (se ocultan si es día completo) -->
+        <div id="seccionHoras" class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Hora Inicio</label>
+            <input type="time" id="campoHoraInicio" value="11:30" onchange="verificarConflictoEnVivo()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-800 text-sm focus:outline-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Hora Fin</label>
+            <input type="time" id="campoHoraFin" value="13:00" onchange="verificarConflictoEnVivo()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-800 text-sm focus:outline-blue-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Diligencia / Motivo / Radicado</label>
+          <input type="text" id="campoMotivoNota" placeholder="Ej: NX-10530 Firma Promesa Compraventa" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 text-sm focus:outline-blue-500" required>
+        </div>
+
+        <div id="seccionUbicacion" class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Municipio / Zona</label>
+            <input type="text" id="campoMunicipio" placeholder="Ej: Bogotá - Chapinero" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-800 text-sm focus:outline-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Entidad / Notaría</label>
+            <input type="text" id="campoEntidad" placeholder="Ej: Notaría 45" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-800 text-sm focus:outline-blue-500">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+          <button type="button" onclick="cerrarModalNuevo()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+            Cancelar
+          </button>
+          <button type="submit" id="btnGuardarRegistro" class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-xs">
+            Guardar en Tablero
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal C: Bandeja de Solicitudes Nodex Pendientes -->
+  <div id="modalBandejaPendientes" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-slate-200 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📥</span>
+          <div>
+            <h3 class="font-bold text-base text-slate-900">Solicitudes pendientes</h3>
+            <p class="text-xs text-slate-500">Solicitudes en espera de asignación de mensajero y horario.</p>
+          </div>
+        </div>
+        <button onclick="cerrarBandejaPendientes()" class="text-slate-400 hover:text-slate-600 p-1">✕</button>
+      </div>
+
+      <div class="py-3 flex-1 overflow-y-auto space-y-3" id="listaCitasPendientes">
+        <!-- Renderizado dinámico desde JS -->
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+        <span class="text-xs text-slate-500">Al asignar, los datos se copian al formulario. El guardado aún es local.</span>
+        <button onclick="cerrarBandejaPendientes()" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notificación Toast Flotante -->
+  <div id="toastNotificacion" class="hidden toast-notificacion">
+    <span id="toastIcono">✓</span>
+    <span id="toastTexto">Mensaje de notificación</span>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- 4. LÓGICA JAVASCRIPT EXPLICADA EN ESPAÑOL               -->
+  <!-- ======================================================= -->
+  <script src="js/config.js?v=3"></script>
+  <script src="js/script.js?v=3"></script>
+</body>
+</html>
+

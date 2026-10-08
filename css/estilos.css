@@ -1,0 +1,211 @@
+/* ========================================================
+   ESTILOS PERSONALIZADOS - CALENDARIO OPERATIVO NODEX
+   ======================================================== */
+
+:root {
+  color-scheme: light;
+  --navy: #10243a;
+  --blue: #245a78;
+  --gold: #b89b58;
+}
+
+body { background: #f3f5f6; }
+::selection { background: #dce9ef; color: var(--navy); }
+button, input, select { font: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid #78a9c1;
+  outline-offset: 2px;
+}
+.app-header { border-radius: 16px; box-shadow: 0 8px 24px rgba(16,36,58,.055); }
+.brand-mark { width: 190px; height: 86px; border-radius: 12px; background: #fff; overflow: hidden; }
+.brand-logo { display: block; width: 100%; height: 100%; }
+.brand-logo-dark { display: none; }
+.brand-divider { color: var(--gold); font-weight: 700; }
+.connection-badge {
+  display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px;
+  border: 1px solid #f0dca8; border-radius: 999px; background: #fff8e8;
+  color: #755613; font-size: 11px; font-weight: 650; line-height: 1;
+}
+
+/* Tema elegido por la persona usuaria */
+:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] body { background: #0b1220; color: #e2e8f0; }
+:root[data-theme="dark"] ::selection { background: #29445d; color: #f8fafc; }
+:root[data-theme="dark"] .app-header,
+:root[data-theme="dark"] [class~="bg-white"] { background-color: #172235 !important; }
+:root[data-theme="dark"] [class~="bg-slate-50"],
+:root[data-theme="dark"] [class~="bg-slate-50/30"],
+:root[data-theme="dark"] [class~="bg-slate-50/80"] { background-color: #111c2d !important; }
+:root[data-theme="dark"] [class~="bg-slate-100"] { background-color: #202d40 !important; }
+:root[data-theme="dark"] [class~="bg-slate-200"] { background-color: #334155 !important; }
+:root[data-theme="dark"] [class~="border-slate-100"],
+:root[data-theme="dark"] [class~="border-slate-200"],
+:root[data-theme="dark"] [class~="border-slate-200/60"] { border-color: #344256 !important; }
+:root[data-theme="dark"] [class~="text-slate-900"],
+:root[data-theme="dark"] [class~="text-slate-800"] { color: #f1f5f9 !important; }
+:root[data-theme="dark"] [class~="text-slate-700"] { color: #dbe4ef !important; }
+:root[data-theme="dark"] [class~="text-slate-600"] { color: #c1ccda !important; }
+:root[data-theme="dark"] [class~="text-slate-500"] { color: #a7b4c5 !important; }
+:root[data-theme="dark"] [class~="text-slate-400"] { color: #91a0b3 !important; }
+:root[data-theme="dark"] [class~="hover:bg-white"]:hover { background-color: #2a3a50 !important; }
+:root[data-theme="dark"] [class~="hover:bg-slate-100"]:hover,
+:root[data-theme="dark"] [class~="hover:bg-slate-200"]:hover { background-color: #2a3a50 !important; }
+:root[data-theme="dark"] [class~="hover:text-slate-900"]:hover,
+:root[data-theme="dark"] [class~="hover:text-slate-600"]:hover { color: #fff !important; }
+:root[data-theme="dark"] input:not([type="checkbox"]),
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea { background-color: #111c2d; color: #e2e8f0; border-color: #40516a; }
+:root[data-theme="dark"] input::placeholder { color: #91a0b3; }
+:root[data-theme="dark"] .brand-mark { background: #172235; }
+:root[data-theme="dark"] .brand-logo-light { display: none; }
+:root[data-theme="dark"] .brand-logo-dark { display: block; }
+:root[data-theme="dark"] .ranura-disponible { background-color: #111c2d; border-color: #53647a; }
+:root[data-theme="dark"] .ranura-disponible:hover { background-color: #162b42; border-color: #60a5fa; }
+:root[data-theme="dark"] .dia-bloqueado-banner { background: linear-gradient(135deg, #351c26 0%, #48202c 100%); border-color: #713846; color: #fecdd3; }
+:root[data-theme="dark"] .tarjeta-cruce { background-color: #351c26 !important; }
+
+/* Superficies informativas conservan su color y ganan contraste en modo oscuro. */
+:root[data-theme="dark"] [class~="bg-blue-50"],
+:root[data-theme="dark"] [class~="bg-blue-50/70"],
+:root[data-theme="dark"] [class~="bg-blue-100"] { background-color: #172f49 !important; }
+:root[data-theme="dark"] [class~="bg-blue-50/40"] { background-color: #172f49 !important; }
+:root[data-theme="dark"] [class~="border-blue-100"] { border-color: #284d70 !important; }
+:root[data-theme="dark"] [class~="text-blue-900"] { color: #dbeafe !important; }
+:root[data-theme="dark"] [class~="text-blue-800"],
+:root[data-theme="dark"] [class~="text-blue-700"],
+:root[data-theme="dark"] [class~="text-blue-600"] { color: #93c5fd !important; }
+:root[data-theme="dark"] [class~="bg-indigo-50"],
+:root[data-theme="dark"] [class~="bg-indigo-50/40"] { background-color: #292448 !important; }
+:root[data-theme="dark"] [class~="border-indigo-100"],
+:root[data-theme="dark"] [class~="border-indigo-300"] { border-color: #514783 !important; }
+:root[data-theme="dark"] [class~="text-indigo-700"] { color: #c4b5fd !important; }
+:root[data-theme="dark"] [class~="bg-teal-50"],
+:root[data-theme="dark"] [class~="bg-teal-50/40"] { background-color: #143735 !important; }
+:root[data-theme="dark"] [class~="border-teal-100"],
+:root[data-theme="dark"] [class~="border-teal-300"] { border-color: #28615c !important; }
+:root[data-theme="dark"] [class~="text-teal-700"] { color: #7de0d2 !important; }
+:root[data-theme="dark"] [class~="bg-emerald-50"],
+:root[data-theme="dark"] [class~="bg-emerald-50/70"],
+:root[data-theme="dark"] [class~="bg-emerald-100"] { background-color: #12352d !important; }
+:root[data-theme="dark"] [class~="border-emerald-100"],
+:root[data-theme="dark"] [class~="border-emerald-200"] { border-color: #245746 !important; }
+:root[data-theme="dark"] [class~="text-emerald-800"],
+:root[data-theme="dark"] [class~="text-emerald-700"],
+:root[data-theme="dark"] [class~="text-emerald-600"] { color: #86efac !important; }
+:root[data-theme="dark"] [class~="bg-amber-50"],
+:root[data-theme="dark"] [class~="bg-amber-50/70"],
+:root[data-theme="dark"] [class~="bg-amber-50/80"],
+:root[data-theme="dark"] [class~="bg-amber-100"] { background-color: #3a3018 !important; }
+:root[data-theme="dark"] [class~="border-amber-100"],
+:root[data-theme="dark"] [class~="border-amber-200"] { border-color: #655126 !important; }
+:root[data-theme="dark"] [class~="text-amber-900"],
+:root[data-theme="dark"] [class~="text-amber-800"],
+:root[data-theme="dark"] [class~="text-amber-700"],
+:root[data-theme="dark"] [class~="text-amber-600"] { color: #fcd879 !important; }
+:root[data-theme="dark"] [class~="bg-rose-50"],
+:root[data-theme="dark"] [class~="bg-rose-100"],
+:root[data-theme="dark"] [class~="bg-red-50"],
+:root[data-theme="dark"] [class~="bg-red-100"],
+:root[data-theme="dark"] [class~="bg-red-100/80"] { background-color: #3a202b !important; }
+:root[data-theme="dark"] [class~="border-rose-200"],
+:root[data-theme="dark"] [class~="border-red-200"],
+:root[data-theme="dark"] [class~="border-red-300"] { border-color: #70404e !important; }
+:root[data-theme="dark"] [class~="text-rose-900"],
+:root[data-theme="dark"] [class~="text-rose-800"],
+:root[data-theme="dark"] [class~="text-rose-700"],
+:root[data-theme="dark"] [class~="text-red-800"],
+:root[data-theme="dark"] [class~="text-red-700"] { color: #fda4af !important; }
+
+@media (prefers-reduced-motion: no-preference) {
+  body, .app-header, .columna-mensajero, .theme-toggle { transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
+}
+.connection-badge.is-connected { border-color: #b6dfca; background: #edf8f1; color: #23603c; }
+.connection-dot { width: 7px; height: 7px; border-radius: 50%; background: #bc8720; }
+.is-connected .connection-dot { background: #328653; }
+.columna-mensajero { border-radius: 16px; box-shadow: 0 5px 18px rgba(16,36,58,.045); }
+.tarjeta-cita { box-shadow: none !important; }
+.toast-notificacion { max-width: min(440px, calc(100vw - 32px)); line-height: 1.45; }
+@media (max-width: 640px) {
+  body { padding: 12px !important; }
+  .app-header { padding: 16px !important; }
+  .brand-mark { width: 132px; height: 74px; }
+  .connection-badge { margin-top: 2px; }
+}
+
+/* Efecto rayado para franjas bloqueadas preventivamente por Nodex */
+.franja-bloqueada {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(239, 68, 68, 0.08),
+    rgba(239, 68, 68, 0.08) 10px,
+    rgba(239, 68, 68, 0.16) 10px,
+    rgba(239, 68, 68, 0.16) 20px
+  );
+}
+
+/* Franja libre / hueco disponible para asignación */
+.ranura-disponible {
+  border: 1.5px dashed #cbd5e1;
+  background-color: #f8fafc;
+  transition: all 0.2s ease-in-out;
+}
+.ranura-disponible:hover {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+  transform: translateY(-1px);
+}
+
+/* Alerta de cruce o solapamiento de horario */
+.tarjeta-cruce {
+  border: 2px solid #ef4444 !important;
+  background-color: #fff5f5 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  animation: pulso-alerta 2s infinite ease-in-out;
+}
+
+@keyframes pulso-alerta {
+  0%, 100% { border-color: #ef4444; }
+  50% { border-color: #b91c1c; }
+}
+
+/* Banner de día completo bloqueado */
+.dia-bloqueado-banner {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 1.5px solid #fca5a5;
+}
+
+/* Transición suave para las tarjetas al pasar el cursor */
+.tarjeta-interactiva {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Sombra suave para las ventanas emergentes */
+.sombra-modal {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Notificación flotante Toast */
+.toast-notificacion {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background-color: #0f172a;
+  color: #ffffff;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+  animation: slide-up 0.3s ease-out;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
