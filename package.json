@@ -1,0 +1,24 @@
+{
+  "name": "calendario_nodex",
+  "version": "1.0.0",
+  "description": "Prototipo web funcional e interactivo para la gestión, visualización y asignación de diligencias de mensajería (Bogotá y Medellín), diseñado para integrarse con la **API de Nodex** y alineado a las necesidades de la **Solicitud Calendario Nodex**.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmonsalvepinto-tech/CalendarioGpav1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jmonsalvepinto-tech/CalendarioGpav1/issues"
+  },
+  "homepage": "https://github.com/jmonsalvepinto-tech/CalendarioGpav1#readme",
+  "devDependencies": {
+    "javascript-obfuscator": "^5.9.0"
+  }
+}
